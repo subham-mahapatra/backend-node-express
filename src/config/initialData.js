@@ -3,6 +3,7 @@ import Role from '~/models/roleModel';
 import User from '~/models/userModel';
 import logger from './logger';
 
+
 async function initialData() {
 	try {
 		const countPermissions = await Permission.estimatedDocumentCount();
@@ -47,6 +48,7 @@ async function initialData() {
 			const permissionsSuperAdministrator = await Permission.find();
 			const permissionsAdministrator = await Permission.find({ controller: 'user' });
 			const permissionsModerator = await Permission.find({ controller: 'user', action: { $ne: 'delete' } });
+			const permissionsInstructor = await Permission.find({controller: { $in: ['course', 'quiz'] }});
 			await Role.create(
 				{
 					name: 'Super Administrator',
@@ -61,6 +63,10 @@ async function initialData() {
 					permissions: permissionsModerator
 				},
 				{
+					name: 'instructor', 
+					permissions: permissionsInstructor
+				},
+				{
 					name: 'User',
 					permissions: []
 				}
@@ -71,7 +77,8 @@ async function initialData() {
 			const roleSuperAdministrator = await Role.findOne({ name: 'Super Administrator' });
 			const roleAdministrator = await Role.findOne({ name: 'Administrator' });
 			const roleModerator = await Role.findOne({ name: 'Moderator' });
-			const roleUser = await Role.findOne({ name: 'User' });
+			const roleInstructor =  await  Role.findOne({ name: 'instructor'})
+			const roleUser = await Role.findOne({ name: 'User' }); 
 			await User.create(
 				{
 					firstName: 'Thuc',
@@ -104,6 +111,14 @@ async function initialData() {
 					email: 'user@example.com',
 					password: 'user',
 					roles: [roleUser]
+				}, 
+				{
+					firstName: 'Test', 
+					lastName: 'Instructor', 
+					userName: 'instructor',
+					email: 'instructor@example.com', 
+					password: 'instructor', 
+					roles: [roleInstructor]
 				}
 			);
 		}
