@@ -7,7 +7,8 @@ import quizRoute from './quizRoutes';
 import courseRoute from './courseRoutes';
 import progressRoute from './progressRoute'; 
 import certificateRoutes from './certificateRoutes'; 
-import paymentRoutes from './paymentRoutes';
+import paymentRoutes from './paymentRoutes'; 
+import videoRoutes from './videoRoutes';
 
 const router = Router();
 
@@ -19,7 +20,9 @@ router.use('/quiz', quizRoute);
 router.use('/course', courseRoute);  
 router.use('/progress', progressRoute); 
 router.use('/certificates', certificateRoutes);
-router.use('/payments', paymentRoutes);
+router.use('/payments', paymentRoutes); 
+router.use('/videos', videoRoutes);
+
 
 
 export default router;

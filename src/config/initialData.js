@@ -49,7 +49,12 @@ async function initialData() {
 			{ controller: 'payment', action: 'create' },
 			{ controller: 'payment', action: 'read' },
 			{ controller: 'payment', action: 'update' },
-			{ controller: 'payment', action: 'delete' },
+			{ controller: 'payment', action: 'delete' }, 
+
+			{ controller: 'video', action: 'create' },
+			{ controller: 'video', action: 'read' },
+			{ controller: 'video', action: 'update' },
+			{ controller: 'video', action: 'delete' },
 
 		);
 		}
@@ -60,7 +65,7 @@ async function initialData() {
 			const permissionsAdministrator = await Permission.find({ controller: 'user' });
 			const permissionsModerator = await Permission.find({ controller: 'user', action: { $ne: 'delete' } });
 			const permissionsInstructor = await Permission.find({
-					controller: { $in: ['course', 'quiz', 'progress', 'certificate', 'payment'] }
+					controller: { $in: ['course', 'quiz', 'progress', 'certificate', 'payment','video'] }
 					});
 
 
