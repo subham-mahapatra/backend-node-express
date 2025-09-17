@@ -10,7 +10,7 @@ const router = Router();
 router.post('/', authenticate('course:create'), catchAsync(createCourse));
 
 // Get all courses (any authenticated user)
-router.get('/', catchAsync(getCourses)); 
+router.get('/', authenticate( ), catchAsync(getCourses)); 
 
 // Instructor/Admin – update
 router.put('/:id', authenticate('course:update'), catchAsync(updateCourse));

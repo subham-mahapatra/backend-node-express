@@ -22,14 +22,14 @@ router.get(
 // Get one user-course progress
 router.get(
   '/:userId/:courseId',
-  authenticate('progress:read'),
+  authenticate('user:read'),
   catchAsync(progressController.getProgress)
 );
 
 // Update
 router.put(
   '/:userId/:courseId',
-  authenticate('progress:update'),
+  authenticate('user:read'),
   catchAsync(progressController.updateProgress)
 );
 

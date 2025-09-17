@@ -15,7 +15,7 @@ router.post(
 // Get all payments for a user (authenticated)
 router.get(
   '/:userId',
-  authenticate('payment:read'),
+  authenticate(),
   catchAsync(paymentController.getPaymentsByUser)
 );
 

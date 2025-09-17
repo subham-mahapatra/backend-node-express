@@ -19,7 +19,7 @@ router.post(
 // Get videos by course
 router.get(
   '/course/:courseId',
-  authenticate('video:read'),
+  authenticate('user:read'),
   catchAsync(getVideosByCourse)
 );
 
@@ -40,7 +40,7 @@ router.delete(
 // Stream endpoint
 router.get(
   '/stream/:id',
-  authenticate('video:read'),
+  authenticate('user:read'),
   catchAsync(streamVideo)
 );
 

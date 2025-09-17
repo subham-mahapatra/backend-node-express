@@ -15,7 +15,7 @@ router.post(
 // Get certificates by userId (any authenticated user)
 router.get(
   '/:userId',
-  authenticate('certificate:read'),
+  authenticate(),
   catchAsync(certificateController.getCertificatesByUser)
 );
 

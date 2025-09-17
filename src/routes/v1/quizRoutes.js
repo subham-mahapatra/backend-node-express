@@ -6,7 +6,7 @@ import { createQuiz, getQuizByCourse, updateQuiz, deleteQuiz } from '~/controlle
 const router = Router();
 
 // Get all quizzes for a course (students can view)
-router.get('/course/:courseId', catchAsync(getQuizByCourse));
+router.get('/course/:courseId', authenticate('user:read'), catchAsync(getQuizByCourse));
 
 // Create a quiz (only instructor/admin)
 router.post('/', authenticate('quiz:create'), catchAsync(createQuiz));

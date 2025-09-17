@@ -8,7 +8,8 @@ import courseRoute from './courseRoutes';
 import progressRoute from './progressRoute'; 
 import certificateRoutes from './certificateRoutes'; 
 import paymentRoutes from './paymentRoutes'; 
-import videoRoutes from './videoRoutes';
+import videoRoutes from './videoRoutes'; 
+import tutorRoutes from './tutorRoutes.js';
 
 const router = Router();
 
@@ -22,6 +23,8 @@ router.use('/progress', progressRoute);
 router.use('/certificates', certificateRoutes);
 router.use('/payments', paymentRoutes); 
 router.use('/videos', videoRoutes);
+router.use('/tutor', tutorRoutes);
+
 
 
 
