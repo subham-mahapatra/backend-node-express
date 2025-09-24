@@ -7,7 +7,7 @@ import authController from '~/controllers/authController';
 
 const router = Router();
 
-router.post('/signup', validate(authValidation.signup), catchAsync(authController.signup));
+router.post('/signup', catchAsync(authController.signup));
 router.post('/signin', validate(authValidation.signin), catchAsync(authController.signin));
 router.get('/current', authenticate(), catchAsync(authController.current));
 router.get('/me', authenticate(), catchAsync(authController.getMe));

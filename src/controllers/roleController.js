@@ -8,7 +8,8 @@ export const createRole = async (req, res) => {
 	const role = await Role.createRole(req.body);
 	return res.status(200).json({
 		success: true,
-		data: role
+		data: role,
+		message:"created successfully"
 	});
 };
 

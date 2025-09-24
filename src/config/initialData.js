@@ -63,7 +63,7 @@ async function initialData() {
 
 		const countRoles = await Role.estimatedDocumentCount();
 		if (countRoles === 0) {
-			const permissionsSuperAdministrator = await Permission.find();
+			const permissionsSuperAdministrator = await Permission.find({ controller: 'role' });
 			const permissionsAdministrator = await Permission.find({ controller: 'user' });
 			const permissionsModerator = await Permission.find({ controller: 'user', action: { $ne: 'delete' } });
 			const permissionsInstructor = await Permission.find({
@@ -104,40 +104,35 @@ async function initialData() {
 			const roleUser = await Role.findOne({ name: 'User' }); 
 			await User.create(
 				{
-					firstName: 'Thuc',
-					lastName: 'Nguyen',
+					fullName: 'Thuc',
 					userName: 'superadmin',
 					email: 'admjnwapviip@gmail.com',
 					password: 'superadmin',
 					roles: [roleSuperAdministrator, roleAdministrator, roleModerator, roleUser]
 				},
 				{
-					firstName: 'Vy',
-					lastName: 'Nguyen',
+					fullName: 'Vy',
 					userName: 'admin',
 					email: 'admin@example.com',
 					password: 'admin',
 					roles: [roleAdministrator]
 				},
 				{
-					firstName: 'Thuyen',
-					lastName: 'Nguyen',
+					fullName: 'Thuyen',
 					userName: 'moderator',
 					email: 'moderator@example.com',
 					password: 'moderator',
 					roles: [roleModerator]
 				},
 				{
-					firstName: 'Uyen',
-					lastName: 'Nguyen',
+					fullName: 'Uyen',
 					userName: 'user',
 					email: 'user@example.com',
 					password: 'user',
 					roles: [roleUser]
 				}, 
 				{
-					firstName: 'Test', 
-					lastName: 'Instructor', 
+					fullName: 'Test', 
 					userName: 'instructor',
 					email: 'instructor@example.com', 
 					password: 'instructor', 

@@ -1,160 +1,141 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import paginate from './plugins/paginatePlugin';
-import toJSON from './plugins/toJSONPlugin';
-import APIError from '~/utils/apiError';
-import Role from './roleModel';
 import config from '~/config/config';
+import Role from './roleModel.js';
+import APIError from '~/utils/apiError.js';
 import httpStatus from 'http-status';
 
-const userSchema = mongoose.Schema(
-	{
-		firstName: {
-			type: String,
-			required: true
-		},
-		lastName: {
-			type: String,
-			required: true
-		},
-		userName: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		email: {
-			type: String,
-			required: true,
-			unique: true
-		},
-		password: {
-			type: String,
-			required: true,
-			private: true
-		},
-		avatar: {
-			type: String,
-			default: 'avatar.png'
-		},
-		confirmed: {
-			type: Boolean,
-			default: false
-		},
-		roles: [
-			{
-				type: mongoose.SchemaTypes.ObjectId,
-				ref: 'roles'
-			}
-		]
-	},
-	{
-		timestamps: true,
-		toJSON: { virtuals: true }
-	}
+const userSchema = new mongoose.Schema(
+  {
+    fullName: {
+      type: String,
+      required: true,
+    },
+    userName: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    email: {
+      type: String,
+      unique: true,
+      sparse: true, // optional email
+    },
+    phone: {
+      type: String,
+      unique: true,
+      sparse: true, // optional phone
+    },
+    password: {
+      type: String,
+      required: true,
+      private: true,
+    },
+    avatar: {
+      type: String,
+      default: 'avatar.png',
+    },
+    confirmed: {
+      type: Boolean,
+      default: false,
+    },
+    roles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'roles',
+      },
+    ], 
+	isVerified: {
+      type: Boolean,
+      default: false
+    }
+  },
+  {
+    timestamps: true,
+    toJSON: {
+      virtuals: true,
+      transform(doc, ret) {
+        delete ret.password; // never send password in response
+      },
+    },
+  }
 );
 
-userSchema.plugin(toJSON);
-userSchema.plugin(paginate);
-
+// Virtual field for avatar URL
 userSchema.virtual('avatarUrl').get(function () {
-	return config.IMAGE_URL + '/' + this.avatar;
+  return config.IMAGE_URL + '/' + this.avatar;
 });
 
-class UserClass {
-	static async isUserNameAlreadyExists(userName, excludeUserId) {
-		return !!(await this.findOne({ userName, _id: { $ne: excludeUserId } }));
-	}
-
-	static async isEmailAlreadyExists(email, excludeUserId) {
-		return !!(await this.findOne({ email, _id: { $ne: excludeUserId } }));
-	}
-
-	static async isRoleIdAlreadyExists(roleId, excludeUserId) {
-		return !!(await this.findOne({ roles: roleId, _id: { $ne: excludeUserId } }));
-	}
-
-	static async getUserById(id) {
-		return await this.findById(id);
-	}
-
-	static async getUserByIdWithRoles(id) {
-		return await this.findById(id).populate({ path: 'roles', select: 'name description createdAt updatedAt' });
-	}
-
-	static async getUserByUserName(userName) {
-		return await this.findOne({ userName });
-	}
-
-	static async getUserByEmail(email) {
-		return await this.findOne({ email });
-	}
-
-	static async createUser(body) {
-		if (await this.isUserNameAlreadyExists(body.userName)) {
-			throw new APIError('User name already exists', httpStatus.BAD_REQUEST);
-		}
-		if (await this.isEmailAlreadyExists(body.email)) {
-			throw new APIError('Email already exists', httpStatus.BAD_REQUEST);
-		}
-		if (body.roles) {
-			await Promise.all(
-				body.roles.map(async (rid) => {
-					if (!(await Role.findById(rid))) {
-						throw new APIError('Roles not exist', httpStatus.BAD_REQUEST);
-					}
-				})
-			);
-		}
-		return await this.create(body);
-	}
-
-	static async updateUserById(userId, body) {
-		const user = await this.getUserById(userId);
-		if (!user) {
-			throw new APIError('User not found', httpStatus.NOT_FOUND);
-		}
-		if (await this.isUserNameAlreadyExists(body.userName, userId)) {
-			throw new APIError('User name already exists', httpStatus.BAD_REQUEST);
-		}
-		if (await this.isEmailAlreadyExists(body.email, userId)) {
-			throw new APIError('Email already exists', httpStatus.BAD_REQUEST);
-		}
-		if (body.roles) {
-			await Promise.all(
-				body.roles.map(async (rid) => {
-					if (!(await Role.findById(rid))) {
-						throw new APIError('Roles not exist', httpStatus.BAD_REQUEST);
-					}
-				})
-			);
-		}
-		Object.assign(user, body);
-		return await user.save();
-	}
-
-	static async deleteUserById(userId) {
-		const user = await this.getUserById(userId);
-		if (!user) {
-			throw new APIError('User not found', httpStatus.NOT_FOUND);
-		}
-		return await user.remove();
-	}
-
-	async isPasswordMatch(password) {
-		return bcrypt.compareSync(password, this.password);
-	}
-}
-
-userSchema.loadClass(UserClass);
-
+// Password hash middleware
 userSchema.pre('save', async function (next) {
-	if (this.isModified('password')) {
-		const passwordGenSalt = bcrypt.genSaltSync(10);
-		this.password = bcrypt.hashSync(this.password, passwordGenSalt);
-	}
-	next();
+  if (this.isModified('password')) {
+    const salt = bcrypt.genSaltSync(10);
+    this.password = bcrypt.hashSync(this.password, salt);
+  }
+  next();
 });
+
+// Instance method for password check
+userSchema.methods.isPasswordMatch = function (password) {
+  return bcrypt.compareSync(password, this.password);
+};
+
+/** Static helpers */
+userSchema.statics.getUserById = function (id) {
+  return this.findById(id);
+};
+
+userSchema.statics.getUserByIdWithRoles = function (id) {
+  return this.findById(id).populate('roles', 'name description');
+};
+
+userSchema.statics.getUserByUserName = function (userName) {
+  return this.findOne({ userName });
+};
+
+userSchema.statics.getUserByEmail = function (email) {
+  return this.findOne({ email });
+};
+
+// Create user with basic validation
+userSchema.statics.createUser = async function (body) {
+  if (await this.findOne({ userName: body.userName })) {
+    throw new APIError('User name already exists', httpStatus.BAD_REQUEST);
+  }
+  if (body.email && (await this.findOne({ email: body.email }))) {
+    throw new APIError('Email already exists', httpStatus.BAD_REQUEST);
+  }
+  if (body.phone && (await this.findOne({ phone: body.phone }))) {
+    throw new APIError('Phone already exists', httpStatus.BAD_REQUEST);
+  }
+  if (body.roles) {
+    for (const rid of body.roles) {
+      if (!(await Role.findById(rid))) {
+        throw new APIError('Role does not exist', httpStatus.BAD_REQUEST);
+      }
+    }
+  }
+  return this.create(body);
+};
+
+// Update user
+userSchema.statics.updateUserById = async function (userId, body) {
+  const user = await this.findById(userId);
+  if (!user) throw new APIError('User not found', httpStatus.NOT_FOUND);
+
+  if (body.userName && (await this.findOne({ userName: body.userName, _id: { $ne: userId } }))) {
+    throw new APIError('User name already exists', httpStatus.BAD_REQUEST);
+  }
+  if (body.email && (await this.findOne({ email: body.email, _id: { $ne: userId } }))) {
+    throw new APIError('Email already exists', httpStatus.BAD_REQUEST);
+  }
+  if (body.phone && (await this.findOne({ phone: body.phone, _id: { $ne: userId } }))) {
+    throw new APIError('Phone already exists', httpStatus.BAD_REQUEST);
+  }
+
+  Object.assign(user, body);
+  return user.save();
+};
 
 const User = mongoose.model('users', userSchema);
-
 export default User;
