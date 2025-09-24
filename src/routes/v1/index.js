@@ -9,7 +9,8 @@ import progressRoute from './progressRoute';
 import certificateRoutes from './certificateRoutes'; 
 import paymentRoutes from './paymentRoutes'; 
 import videoRoutes from './videoRoutes'; 
-import tutorRoutes from './tutorRoutes.js';
+import tutorRoutes from './tutorRoutes.js'; 
+import otpRoutes from './otpRoutes';
 
 const router = Router();
 
@@ -23,7 +24,9 @@ router.use('/progress', progressRoute);
 router.use('/certificates', certificateRoutes);
 router.use('/payments', paymentRoutes); 
 router.use('/videos', videoRoutes);
-router.use('/tutor', tutorRoutes);
+router.use('/tutor', tutorRoutes); 
+router.use('/otp', otpRoutes); 
+
 
 
 
