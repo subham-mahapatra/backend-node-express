@@ -6,7 +6,8 @@ import * as courseController from '~/controllers/courseController.js';
 
 const router = express.Router();
 router.post('/:courseId/reviews', authenticate(), courseController.addReview); 
-router.get('/:courseId/reviews', authenticate(), courseController.getCourseReviews);
+router.get('/:courseId/reviews', authenticate(), courseController.getCourseReviews); 
+router.get('/all', authenticate(), courseController.getAllCourses);
 
 router.get('/wishlist', authenticate(), courseController.getWishlist); 
 

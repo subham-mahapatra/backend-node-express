@@ -346,4 +346,33 @@ export const getCoursesByCategory = catchAsync(async (req, res) => {
     },
     message: `Courses in category "${categoryName}" retrieved successfully`
   });
+}); 
+
+export const getAllCourses = catchAsync(async (req, res) => {
+  const { page = 1, limit = 10, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
+
+  // Only show published courses
+  const filter = { isPublished: true };
+
+  const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+  const courses = await Course.find(filter)
+    .sort(sort)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .populate('tutor', 'fullName email')
+    .lean();
+
+  const total = await Course.countDocuments(filter);
+
+  res.json({
+    success: true,
+     courses,
+    pagination: {
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10),
+      total
+    },
+    message: 'All courses retrieved successfully'
+  });
 });
