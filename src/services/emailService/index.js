@@ -7,10 +7,13 @@ import config from '~/config/config';
 export const transport = nodemailer.createTransport({
   host: config.SMTP_HOST,
   port: config.SMTP_PORT,
-  secure: true,
+  secure: false,
   auth: {
     user: config.SMTP_USERNAME,
     pass: config.SMTP_PASSWORD,
+  },
+  tls: {
+    rejectUnauthorized: false, // optional but often fixes handshake in Render
   },
 });
 
