@@ -1,21 +1,36 @@
-import { Router } from 'express';
-import catchAsync from '~/utils/catchAsync';
-import authenticate from '~/middlewares/authenticate';
-import validate from '~/middlewares/validate';
-import {createCourse, getCourses, updateCourse, deleteCourse} from '~/controllers/courseController';
+import express from 'express';
+import validate from '~/middlewares/validate.js';
+import authenticate from '~/middlewares/authenticate.js';
+// import * as courseValidation from '~/validations/courseValidation.js';
+import * as courseController from '~/controllers/courseController.js';
 
-const router = Router();
+const router = express.Router();
+router.post('/:courseId/reviews', authenticate(), courseController.addReview); 
+router.get('/:courseId/reviews', authenticate(), courseController.getCourseReviews);
 
-// Create course (Instructor only)
-router.post('/', authenticate('course:create'), catchAsync(createCourse));
+router.get('/wishlist', authenticate(), courseController.getWishlist); 
 
-// Get all courses (any authenticated user)
-router.get('/', authenticate( ), catchAsync(getCourses)); 
+router.get('/categories/:categoryName/courses', authenticate(), courseController.getCoursesByCategory);
 
-// Instructor/Admin – update
-router.put('/:id', authenticate('course:update'), catchAsync(updateCourse));
+// Public routes
+router.get('/',  courseController.searchCourses);
+router.get('/:courseId',  courseController.getCourseById);
+router.get('/:courseId/related',  courseController.getRelatedCourses);
 
-// Instructor/Admin – delete
-router.delete('/:id', authenticate('course:delete'), catchAsync(deleteCourse));
+// Student routes
+router.use(authenticate()); // all below require login
+
+router.post('/enroll',  courseController.enrollInCourse);
+router.get('/enrollments/me', courseController.getUserEnrollments);
+router.post('/:courseId/lessons/:lessonId/complete',  courseController.markLessonComplete);
+router.post('/wishlist',  courseController.addToWishlist);
+router.delete('/wishlist/:courseId',  courseController.removeFromWishlist);
+
+// Tutor/Admin routes
+router.use(authenticate('course:create')); // or check role in controller
+
+router.post('/',  courseController.createCourse);
+router.put('/:courseId',  courseController.updateCourse);
+router.delete('/:courseId',  courseController.deleteCourse);
 
 export default router;
