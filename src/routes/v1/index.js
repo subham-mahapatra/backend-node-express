@@ -11,6 +11,7 @@ import paymentRoutes from './paymentRoutes';
 import videoRoutes from './videoRoutes'; 
 import tutorRoutes from './tutorRoutes.js'; 
 import otpRoutes from './otpRoutes';
+import lessonRoutes from './lessonRoutes';
 
 const router = Router();
 
@@ -25,7 +26,9 @@ router.use('/certificates', certificateRoutes);
 router.use('/payments', paymentRoutes); 
 router.use('/videos', videoRoutes);
 router.use('/tutor', tutorRoutes); 
-router.use('/otp', otpRoutes); 
+router.use('/otp', otpRoutes);  
+router.use('/lessons', lessonRoutes);
+
 
 
 
